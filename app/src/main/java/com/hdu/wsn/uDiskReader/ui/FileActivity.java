@@ -57,7 +57,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
      */
     private void initPermission() {
         Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);//ACTION_OPEN_DOCUMENT
-        startActivityForResult(intent, 42);
+        startActivityForResult(intent, 42);//ghdajs
     }
 
     @Override
