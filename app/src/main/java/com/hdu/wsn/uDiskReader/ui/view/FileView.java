@@ -51,8 +51,8 @@ public interface FileView {
     void onUDiskRemove(Intent intent);
 
     /**
-     * 长按item
-     * @param flag 长按或取消
+     * 设置工具栏类型
+     * @param type 工具栏类型
      */
-    void longClickItem(boolean flag);
+    void setToolBarType(int type);
 }

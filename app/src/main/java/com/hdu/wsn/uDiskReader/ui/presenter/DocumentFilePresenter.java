@@ -32,13 +32,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ASUS on 2017/7/19 0019.
  */
 
 public class DocumentFilePresenter implements FilePresenter{
+
     private FileView fileView;
     private Context context;
     private boolean loginFlag = false;    // 登录标记
@@ -47,11 +50,8 @@ public class DocumentFilePresenter implements FilePresenter{
     private DocumentFile currentFolder;  //当前目录
     private Uri rootUri;
     
-    private DocumentFile copyFile;
-    private boolean flag = false;
+    private boolean pasteFlag = false, deleteAfterPatse;
 
-    private PopupWindow popuWindow;
-    private int local;
     private static DocumentFilePresenter instance;
 
     public static DocumentFilePresenter newInstance(FileView fileView, Context context, Uri rootUri) {
@@ -167,50 +167,16 @@ public class DocumentFilePresenter implements FilePresenter{
             public void onItemLongClick(View view, int position) {
                 final int index = getRealPosition(position);
                 if (index > 0) {
-                    DocumentFile file = fileList.get(index - 1);
-                    showPopView(view, file, index);
-                    local = index;
+                    fileView.setToolBarType(2);
                 }
             }
-        });
 
-    }
-
-    /**
-     *
-     * @param view
-     * @param file
-     * @param index
-     */
-    private void showPopView(View view, final DocumentFile file,final int index) {
-        View popuView = View.inflate(context,R.layout.popupwindow_music_opt,null);
-        TextView tv_move = (TextView) popuView.findViewById(R.id.tv_open);
-        TextView tv_del = (TextView) popuView.findViewById(R.id.tv_del);
-
-        tv_del.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                boolean result = FileUtil.deleteFile(file);
-                if (result) {
-                    fileView.getAdapter().removeData(index-1);
-                }
-                popuWindow.dismiss();
+            public void onItemCheck(View view, int position, boolean check) {
+
             }
         });
 
-        tv_move.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                copyFile = file;
-                flag = true;
-                popuWindow.dismiss();
-            }
-        });
-
-        popuWindow = new PopupWindow(popuView, LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,true);
-        popuWindow.setBackgroundDrawable(new ColorDrawable());
-        popuWindow.showAsDropDown(view,800,-view.getHeight());
     }
 
     /**
@@ -227,14 +193,78 @@ public class DocumentFilePresenter implements FilePresenter{
     }
 
     @Override
+    public void deleteCheckFileList() {
+        Map<Integer, Boolean> checkFileList = fileView.getAdapter().getCheckMap();
+        for (Integer index : checkFileList.keySet()) {
+            if (checkFileList.get(index)) {
+                index = getRealPosition(index);
+                doDelete(index, fileList.get(index-1));
+            }
+        }
+        fileView.setToolBarType(1);
+    }
+
+    /**
+     * 执行删除文件
+     * @param index 文件位置（1开始）
+     * @param file 文件
+     */
+    private void doDelete(int index, DocumentFile file) {
+        boolean result = FileUtil.deleteFile(file);
+        if (result) {
+            removeData(index-1);
+        }
+    }
+
+    /**
+     * 删除某个item
+     * @param index
+     */
+    private void removeData(int index) {
+        fileView.getAdapter().removeData(index);
+    }
+
+    /**
+     * 添加文件
+     * @param file 文件
+     */
+    private void addData(DocumentFile file) {
+        fileView.getAdapter().addData(file);
+    }
+
+    @Override
+    public void createFolder() {
+        //TODO:
+    }
+
+    @Override
+    public void copyFileList(boolean delete) {
+        pasteFlag = true;
+        deleteAfterPatse = delete;
+        fileView.setToolBarType(3);
+    }
+
+    @Override
     public void pasteFileList() {
-        if(flag){
-            DocumentFile newFile = FileUtil.moveFile(context,copyFile,currentFolder);
-            fileView.getAdapter().addData(newFile);
-            flag = false;
+        if(pasteFlag){
+            Map<Integer, Boolean> checkFileList = fileView.getAdapter().getCheckMap();
+            for (Integer index : checkFileList.keySet()) {
+                if (!checkFileList.get(index)) {
+                    continue;
+                }
+                index = getRealPosition(index);
+                DocumentFile copyFile = fileList.get(index-1);
+                DocumentFile newFile = FileUtil.moveFile(context,copyFile,currentFolder);
+                addData(newFile);
+                pasteFlag = false;
+                if (deleteAfterPatse) {
+                    doDelete(index, copyFile);
+                }
+            }
         }else{
             Toast.makeText(context,"请选择你要移动的文件",Toast.LENGTH_SHORT).show();
         }
+        fileView.setToolBarType(1);
     }
 
     @Override
@@ -275,21 +305,6 @@ public class DocumentFilePresenter implements FilePresenter{
             context.unregisterReceiver(usbReceiver);
             usbReceiver = null;
         }
-    }
-
-    @Override
-    public void deleteCheckFileList() {
-
-    }
-
-    @Override
-    public void createFolder() {
-
-    }
-
-    @Override
-    public void copyFileList(boolean delete) {
-
     }
 
     /**

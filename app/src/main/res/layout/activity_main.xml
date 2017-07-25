@@ -5,7 +5,7 @@
     android:id="@+id/activity_file"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.hdu.wsn.uDiskReader.ui.MainActivity">
+    tools:context="com.hdu.wsn.uDiskReader.ui.FileActivity">
 
     <RelativeLayout
         android:id="@+id/bar"
@@ -30,27 +30,54 @@
             android:layout_toEndOf="@+id/pre_folder"/>
 
 
-        <TextView
-            android:id="@+id/tv_copy"
-            android:text="移动到此"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            />
-
     </RelativeLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="40dp"
         android:layout_below="@id/bar">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+            android:layout_height="match_parent"
+            ></android.support.v7.widget.RecyclerView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        >
+
+        <Button
+            android:id="@+id/delete_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete"/>
+
+        <Button
+            android:id="@+id/copy_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/copy"/>
+
+        <Button
+            android:id="@+id/cut_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cut"/>
+
+        <Button
+            android:id="@+id/paste_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/paste"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

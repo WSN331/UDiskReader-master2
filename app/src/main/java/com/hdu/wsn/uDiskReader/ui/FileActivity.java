@@ -18,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -90,7 +91,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout.setColorSchemeColors(Color.YELLOW, Color.BLUE, Color.RED, Color.GREEN);
         swipeRefreshLayout.setOnRefreshListener(this);
         tvDebug = (TextView) findViewById(R.id.tv_debug);
-        tvCopy = (TextView) findViewById(R.id.tv_copy);
+//        tvCopy = (TextView) findViewById(R.id.tv_copy);
         initClick();
     }
 
@@ -107,14 +108,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
             }
         });
-        tvCopy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (filePresenter != null) {
-                    filePresenter.pasteFileList();
-                }
-            }
-        });
+        initClickTooBar();
     }
 
     @Override
@@ -212,12 +206,51 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @Override
-    public void longClickItem(boolean flag) {
-        if (flag) {
-
+    public void setToolBarType(int type) {
+        switch (type) {
+            case FilePresenter.TOOR_BAR_COMMON:
+                break;
+            case FilePresenter.TOOR_BAR_LONG_CLICK:
+                break;
+            case FilePresenter.TOOR_BAR_PASTE:
+                break;
         }
     }
 
+    /**
+     * 初始化工具栏
+     */
+    private void initClickTooBar() {
+        Button copyBtn, cutBtn, pasteBtn, deleteBtn;
+        copyBtn = (Button) findViewById(R.id.copy_btn);
+        cutBtn = (Button) findViewById(R.id.cut_btn);
+        pasteBtn = (Button) findViewById(R.id.paste_btn);
+        deleteBtn = (Button) findViewById(R.id.delete_btn);
+        copyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filePresenter.copyFileList(false);
+            }
+        });
+        cutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filePresenter.copyFileList(true);
+            }
+        });
+        pasteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filePresenter.pasteFileList();
+            }
+        });
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filePresenter.deleteCheckFileList();
+            }
+        });
+    }
 
     /**
      * 执行登录

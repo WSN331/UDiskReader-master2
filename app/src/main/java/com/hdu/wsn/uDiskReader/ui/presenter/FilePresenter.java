@@ -8,7 +8,9 @@ import android.widget.TextView;
  */
 
 public interface FilePresenter {
-
+    public static final int TOOR_BAR_COMMON = 1;
+    public static final int TOOR_BAR_LONG_CLICK = 2;
+    public static final int TOOR_BAR_PASTE = 3;
 
     /**
      * 判断是不是根路径
