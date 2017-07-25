@@ -10,7 +10,6 @@ import android.widget.TextView;
 public interface FilePresenter {
 
 
-    void setListener(TextView tv);
     /**
      * 判断是不是根路径
      * @return 是否是根路径
@@ -43,4 +42,26 @@ public interface FilePresenter {
      * 注销广播
      */
     void unRegisterReceive();
+
+    /**
+     * 删除文件列表
+     */
+    void deleteCheckFileList();
+
+    /**
+     * 新建文件夹
+     */
+    void createFolder();
+
+    /**
+     * 复制文件列表
+     * @param delete 复制完是否删除
+     */
+    void copyFileList(boolean delete);
+
+    /**
+     * 设置粘贴
+     */
+    void pasteFileList();
+
 }

@@ -227,19 +227,14 @@ public class DocumentFilePresenter implements FilePresenter{
     }
 
     @Override
-    public void setListener(TextView tv) {
-        tv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(flag){
-                    DocumentFile newFile = FileUtil.moveFile(context,copyFile,currentFolder);
-                    fileView.getAdapter().addData(newFile);
-                    flag = false;
-                }else{
-                    Toast.makeText(context,"请选择你要移动的文件",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+    public void pasteFileList() {
+        if(flag){
+            DocumentFile newFile = FileUtil.moveFile(context,copyFile,currentFolder);
+            fileView.getAdapter().addData(newFile);
+            flag = false;
+        }else{
+            Toast.makeText(context,"请选择你要移动的文件",Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -280,6 +275,21 @@ public class DocumentFilePresenter implements FilePresenter{
             context.unregisterReceiver(usbReceiver);
             usbReceiver = null;
         }
+    }
+
+    @Override
+    public void deleteCheckFileList() {
+
+    }
+
+    @Override
+    public void createFolder() {
+
+    }
+
+    @Override
+    public void copyFileList(boolean delete) {
+
     }
 
     /**

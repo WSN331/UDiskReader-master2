@@ -49,4 +49,10 @@ public interface FileView {
      * @param intent
      */
     void onUDiskRemove(Intent intent);
+
+    /**
+     * 长按item
+     * @param flag 长按或取消
+     */
+    void longClickItem(boolean flag);
 }

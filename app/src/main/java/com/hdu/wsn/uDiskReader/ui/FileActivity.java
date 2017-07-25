@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.provider.DocumentFile;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +18,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +31,7 @@ import com.hdu.wsn.uDiskReader.ui.presenter.FilePresenter;
 import com.hdu.wsn.uDiskReader.ui.view.DocumentFileAdapter;
 import com.hdu.wsn.uDiskReader.ui.view.FileView;
 import com.hdu.wsn.uDiskReader.ui.view.MyItemDecoration;
+import com.hdu.wsn.uDiskReader.usb.file.FileUtil;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskConnection;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskLib;
 
@@ -102,6 +107,14 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
             }
         });
+        tvCopy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (filePresenter != null) {
+                    filePresenter.pasteFileList();
+                }
+            }
+        });
     }
 
     @Override
@@ -137,7 +150,6 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void setTitle(String preText, String nowText) {
         preFolder.setText(preText);
         tvDebug.setText(nowText);
-        filePresenter.setListener(tvCopy);
     }
 
     @Override
@@ -198,6 +210,14 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
             doLogout();
         }
     }
+
+    @Override
+    public void longClickItem(boolean flag) {
+        if (flag) {
+
+        }
+    }
+
 
     /**
      * 执行登录
