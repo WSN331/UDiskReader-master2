@@ -36,8 +36,9 @@
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="40dp"
-        android:layout_below="@id/bar">
+        android:layout_below="@id/bar"
+        android:layout_above="@+id/ll_3"
+        android:layout_alignParentStart="true">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -79,29 +80,6 @@
 
     <LinearLayout
         android:id="@+id/ll_2"
-        android:visibility="invisible"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        >
-
-        <Button
-            android:id="@+id/cancel_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cancel"/>
-
-        <Button
-            android:id="@+id/paste_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/paste"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ll_3"
         android:visibility="visible"
         android:gravity="center"
         android:layout_width="match_parent"
@@ -110,17 +88,75 @@
         android:layout_alignParentBottom="true"
         >
 
-        <Button
+<!--        <Button
+            android:id="@+id/cancel_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"/>-->
+
+        <TextView
+            android:id="@+id/cancel_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="can"
+            android:drawableTop="@drawable/create"/>
+
+        <TextView
+            android:id="@+id/paste_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/refresh"
+            android:drawableTop="@drawable/refresh"/>
+
+<!--        <Button
+            android:id="@+id/paste_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/paste"/>-->
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_3"
+        android:visibility="invisible"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        >
+
+<!--        <Button
             android:id="@+id/create_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/create"/>
+            android:text="@string/create"/>-->
+        <TextView
+            android:id="@+id/create_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/create"
+            android:drawableTop="@drawable/create"/>
 
-        <Button
+        <TextView
             android:id="@+id/refresh_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/refresh"/>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/refresh"
+            android:drawableTop="@drawable/refresh"/>
+
+<!--        <Button
+            android:id="@+id/refresh_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/refresh"/>-->
     </LinearLayout>
 
 </RelativeLayout>

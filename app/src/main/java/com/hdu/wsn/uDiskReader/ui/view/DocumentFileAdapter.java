@@ -196,7 +196,7 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
         public int getCheckBoxVisibility() {
             return check_file.getVisibility();
         }
-        
+
         public boolean check() {
             boolean b = check_file.isChecked();
             b = !b;
