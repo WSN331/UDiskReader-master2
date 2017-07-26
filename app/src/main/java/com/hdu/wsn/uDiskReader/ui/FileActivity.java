@@ -244,15 +244,15 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
      * 初始化工具栏
      */
     private void initClickTooBar() {
-        Button copyBtn, cutBtn, pasteBtn, deleteBtn,refreshBtn,createBtn,cancelBtn;
-        copyBtn = (Button) findViewById(R.id.copy_btn);
-        cutBtn = (Button) findViewById(R.id.cut_btn);
-        pasteBtn = (Button) findViewById(R.id.paste_btn);
-        deleteBtn = (Button) findViewById(R.id.delete_btn);
+        TextView copyBtn, cutBtn, pasteBtn, deleteBtn,refreshBtn,createBtn,cancelBtn;
+        copyBtn = (TextView) findViewById(R.id.copy_btn);
+        cutBtn = (TextView) findViewById(R.id.cut_btn);
+        pasteBtn = (TextView) findViewById(R.id.paste_btn);
+        deleteBtn = (TextView) findViewById(R.id.delete_btn);
 
-        refreshBtn = (Button) findViewById(R.id.refresh_btn);
-        createBtn = (Button) findViewById(R.id.create_btn);
-        cancelBtn = (Button) findViewById(R.id.cancel_btn);
+        refreshBtn = (TextView) findViewById(R.id.refresh_btn);
+        createBtn = (TextView) findViewById(R.id.create_btn);
+        cancelBtn = (TextView) findViewById(R.id.cancel_btn);
 
         copyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -289,9 +289,9 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                l1.setVisibility(View.VISIBLE);
+                l3.setVisibility(View.VISIBLE);
+                l1.setVisibility(View.INVISIBLE);
                 l2.setVisibility(View.INVISIBLE);
-                l3.setVisibility(View.INVISIBLE);
             }
         });
 

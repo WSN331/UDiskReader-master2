@@ -11,6 +11,7 @@
         android:id="@+id/bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#eee"
         android:orientation="horizontal">
 
         <TextView
@@ -36,8 +37,9 @@
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="40dp"
-        android:layout_below="@id/bar">
+        android:layout_below="@id/bar"
+        android:layout_above="@+id/ll_3"
+        android:layout_alignParentStart="true">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -57,23 +59,49 @@
         android:layout_alignParentBottom="true"
         >
 
-        <Button
+<!--        <Button
             android:id="@+id/delete_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/delete"/>
+            android:text="@string/delete"/>-->
 
-        <Button
+<!--        <Button
             android:id="@+id/cut_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cut"/>
+            android:text="@string/cut"/>-->
 
-        <Button
+<!--        <Button
             android:id="@+id/copy_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/copy"/>
+            android:text="@string/copy"/>-->
+
+        <TextView
+            android:id="@+id/delete_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/delete"
+            android:drawableTop="@drawable/remove"/>
+
+        <TextView
+            android:id="@+id/cut_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/cut"
+            android:drawableTop="@drawable/cut"/>
+        <TextView
+            android:id="@+id/copy_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/copy"
+            android:drawableTop="@drawable/copy"/>
 
     </LinearLayout>
 
@@ -87,17 +115,35 @@
         android:layout_alignParentBottom="true"
         >
 
-        <Button
+<!--        <Button
             android:id="@+id/cancel_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cancel"/>
+            android:text="@string/cancel"/>-->
 
-        <Button
+        <TextView
+            android:id="@+id/cancel_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/cancel"
+            android:drawableTop="@drawable/cancel"/>
+
+        <TextView
             android:id="@+id/paste_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/paste"/>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/paste"
+            android:drawableTop="@drawable/paste"/>
+
+<!--        <Button
+            android:id="@+id/paste_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/paste"/>-->
     </LinearLayout>
 
     <LinearLayout
@@ -110,17 +156,43 @@
         android:layout_alignParentBottom="true"
         >
 
-        <Button
+<!--        <Button
             android:id="@+id/create_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/create"/>
+            android:text="@string/create"/>-->
+        <TextView
+            android:id="@+id/create_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/create"
+            android:drawableTop="@drawable/create"/>
 
-        <Button
+        <TextView
             android:id="@+id/refresh_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/refresh"/>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/refresh"
+            android:drawableTop="@drawable/refresh"/>
+
+        <TextView
+            android:id="@+id/equal_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/equal"
+            android:drawableTop="@drawable/cloud"/>
+
+<!--        <Button
+            android:id="@+id/refresh_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/refresh"/>-->
     </LinearLayout>
 
 </RelativeLayout>

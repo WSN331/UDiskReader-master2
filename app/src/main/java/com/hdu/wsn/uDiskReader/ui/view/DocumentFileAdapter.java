@@ -55,6 +55,13 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
     }
 
     /**
+     * 设置复选框点击状况
+     */
+    public void setCheckMap(Map<Integer,Boolean> map){
+        this.checkMap = map;
+    }
+
+    /**
      * 页面刷新
      */
     private void viewRefresh() {

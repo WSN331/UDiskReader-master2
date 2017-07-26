@@ -50,7 +50,8 @@ public class DocumentFilePresenter implements FilePresenter{
     private DocumentFile currentFolder;  //当前目录
     private Uri rootUri;
     
-    private boolean pasteFlag = false, deleteAfterPatse;
+    private boolean pasteFlag = false, deleteAfterPaste;
+    Map<Integer, DocumentFile> copyFileMap;
 
     private static DocumentFilePresenter instance;
 
@@ -70,6 +71,7 @@ public class DocumentFilePresenter implements FilePresenter{
         this.context = context;
         this.rootUri = rootUri;
         fileList = new ArrayList<>();
+        copyFileMap = new HashMap<>();
         registerReceiver();
     }
 
@@ -210,7 +212,7 @@ public class DocumentFilePresenter implements FilePresenter{
      */
     private void doDelete(int index, DocumentFile file) {
         boolean result = FileUtil.deleteFile(file);
-        if (result) {
+        if (result && index>0) {
             removeData(index-1);
         }
     }
@@ -241,27 +243,36 @@ public class DocumentFilePresenter implements FilePresenter{
     @Override
     public void copyFileList(boolean delete) {
         pasteFlag = true;
-        deleteAfterPatse = delete;
+        deleteAfterPaste = delete;
         fileView.setToolBarType(FilePresenter.TOOL_BAR_PASTE);
+        Map<Integer, Boolean> copyMap = fileView.getAdapter().getCheckMap();
+        copyFileMap.clear();
+        for (Integer index : copyMap.keySet()) {
+            if (!copyMap.get(index)) {
+                continue;
+            }
+            index = getRealPosition(index);
+            DocumentFile copyFile = fileList.get(index-1);
+            copyFileMap.put(index, copyFile);
+        }
+        fileView.getAdapter().changeCheckBoxVisibility(DocumentFileAdapter.ViewHolder.CHECK_INVISIBILITY);
     }
 
     @Override
     public void pasteFileList() {
         if(pasteFlag){
-            Map<Integer, Boolean> checkFileList = fileView.getAdapter().getCheckMap();
-            for (Integer index : checkFileList.keySet()) {
-                if (!checkFileList.get(index)) {
-                    continue;
-                }
-                index = getRealPosition(index);
-                DocumentFile copyFile = fileList.get(index-1);
-                DocumentFile newFile = FileUtil.moveFile(context,copyFile,currentFolder);
+            for (Integer index : copyFileMap.keySet()) {
+                DocumentFile copyFile = copyFileMap.get(index);
+                DocumentFile newFile = FileUtil.moveFile(context, copyFile, currentFolder);
                 addData(newFile);
                 pasteFlag = false;
-                if (deleteAfterPatse) {
+                if (fileList.size()<index || fileList.get(index-1) != copyFile) {
+                    index = -1;
+                }
+                if (deleteAfterPaste) {
                     doDelete(index, copyFile);
                 }
-                fileView.getAdapter().changeCheckBoxVisibility(DocumentFileAdapter.ViewHolder.CHECK_INVISIBILITY);
+                //fileView.getAdapter().changeCheckBoxVisibility(DocumentFileAdapter.ViewHolder.CHECK_INVISIBILITY);
             }
         }else{
             Toast.makeText(context,"请选择你要移动的文件",Toast.LENGTH_SHORT).show();
