@@ -28,6 +28,7 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
     // 是否以私密空间item打头
     private boolean secretHeader;
     private int checkBoxVisibility;
+    private RecyclerView recyclerView;
 
     Map<Integer, Boolean> checkMap;
 
@@ -37,6 +38,18 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
         checkMap = new HashMap<>();
     }
 
+    /**
+     * 设置当前适配的列表视图
+     * @param recyclerView 视图
+     */
+    public void setRecyclerView(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+    }
+
+    /**
+     * 获取复选框点击情况
+     * @return 编号——》是否点击  键值对
+     */
     public Map<Integer, Boolean> getCheckMap() {
         return checkMap;
     }
@@ -50,21 +63,23 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
     }
 
     /**
-     *
-     * @param checkBoxVisibility
+     * 改变与判断复选框是否显示
+     * @param checkBoxVisibility 复选框是否显示的编号
+     * @return 状态是否与传入值相同
      */
-    public void changeCheckBoxVisibility(int checkBoxVisibility) {
+    public boolean changeCheckBoxVisibility(int checkBoxVisibility) {
         if (this.checkBoxVisibility == checkBoxVisibility) {
-            return;
+            return true;
         }
         checkMap = new HashMap<>();
         this.checkBoxVisibility = checkBoxVisibility;
         viewRefresh();
+        return false;
     }
 
     /**
-     *
-     * @param secretHeader
+     * 设置是否为“私有空间”栏目打头
+     * @param secretHeader 是否
      */
     public void setSecretHeader(boolean secretHeader) {
         this.secretHeader = secretHeader;
@@ -74,8 +89,8 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
     }
 
     /**
-     *
-     * @param position
+     * 移除栏目数据
+     * @param position 位置
      */
     public void removeData(int position) {
         data.remove(position);
@@ -83,8 +98,8 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
     }
 
     /**
-     *
-     * @param file
+     * 添加栏目数据
+     * @param file 文件
      */
     public void addData(DocumentFile file){
         if (secretHeader) {
@@ -154,6 +169,7 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
     @Override
     public boolean onLongClick(View v) {
         changeCheckBoxVisibility(ViewHolder.CHECK_VISIBILITY);
+        checkView(v);
         if (onRecyclerViewItemClickListener != null) {
             onRecyclerViewItemClickListener.onItemLongClick(v, (int) v.getTag());
         }
@@ -166,13 +182,36 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
             if (checkBoxVisibility == ViewHolder.CHECK_INVISIBILITY) {
                 onRecyclerViewItemClickListener.onItemClick(v, (int) v.getTag());
             } else {
-//                onRecyclerViewItemClickListener.onItemCheck(v, (int) v.getTag(), viewHolder.check());
+                checkView(v);
             }
         }
     }
 
     /**
-     *
+     * 选中（取消）某个view的复选框
+     * @param v view
+     */
+    private void checkView(View v) {
+        ViewHolder viewHolder = getViewHolder(v);
+        if(viewHolder != null) {
+            viewHolder.check();
+        }
+    }
+
+    /**
+     * 获取某个view对应的viewHolder
+     * @param view view
+     * @return viewHolder
+     */
+    private ViewHolder getViewHolder(View view) {
+        if (recyclerView != null) {
+            return (ViewHolder) recyclerView.getChildViewHolder(view);
+        }
+        return null;
+    }
+
+    /**
+     * 单个栏目的viewHolder
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public static final int CHECK_VISIBILITY = View.VISIBLE;
@@ -193,10 +232,6 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
             check_file.setVisibility(visibility);
         }
 
-        public int getCheckBoxVisibility() {
-            return check_file.getVisibility();
-        }
-
         public boolean check() {
             boolean b = check_file.isChecked();
             b = !b;
@@ -207,34 +242,34 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
     }
 
     /**
-     *
+     * 列表点击事件接口
      */
     public interface OnRecyclerViewItemClickListener {
         /**
-         *
-         * @param view
-         * @param position
+         * 单击事件的回调
+         * @param view 选中的view
+         * @param position 选中的序号
          */
         void onItemClick(View view, int position);
 
         /**
-         *
-         * @param view
-         * @param position
+         * 长按事件回调
+         * @param view 选中的view
+         * @param position 选中的序号
          */
         void onItemLongClick(View view, int position);
 
         /**
-         *
-         * @param view
-         * @param position
-         * @param check
+         * 当复选框被选中（或取消）时候需要触发的事件（不包含复选框的选中动作和点击存放表的改变）
+         * @param view 选中栏目的view
+         * @param position 选中栏目的标号
+         * @param check 是否被选中
          */
         void onItemCheck(View view, int position, boolean check);
     }
 
     /**
-     *
+     * 设置列表的点击事件
      * @param onRecyclerViewItemClickListener
      */
     public void setOnRecyclerViewItemClickListener(OnRecyclerViewItemClickListener onRecyclerViewItemClickListener) {

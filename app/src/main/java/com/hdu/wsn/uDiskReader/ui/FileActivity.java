@@ -140,12 +140,16 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onBackPressed() {
-        if (filePresenter.isRootView()) {
-            filePresenter.returnPreFolder();
-        } else if (filePresenter.isLogin()) {
-            logout();
+        if (adapter.changeCheckBoxVisibility(DocumentFileAdapter.ViewHolder.CHECK_INVISIBILITY)) {
+            if (filePresenter.isRootView()) {
+                filePresenter.returnPreFolder();
+            } else if (filePresenter.isLogin()) {
+                logout();
+            } else {
+                super.onBackPressed();
+            }
         } else {
-            super.onBackPressed();
+            setToolBarType(FilePresenter.TOOL_BAR_COMMON);
         }
     }
 
@@ -159,6 +163,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void setAdapter(DocumentFileAdapter adapter) {
         this.adapter = adapter;
         recyclerView.setAdapter(adapter);
+        adapter.setRecyclerView(recyclerView);
     }
 
     @Override
@@ -217,17 +222,17 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void setToolBarType(int type) {
         switch (type) {
-            case FilePresenter.TOOR_BAR_COMMON:
+            case FilePresenter.TOOL_BAR_COMMON:
                 l3.setVisibility(View.VISIBLE);
                 l1.setVisibility(View.INVISIBLE);
                 l2.setVisibility(View.INVISIBLE);
                 break;
-            case FilePresenter.TOOR_BAR_LONG_CLICK:
+            case FilePresenter.TOOL_BAR_LONG_CLICK:
                 l1.setVisibility(View.VISIBLE);
                 l2.setVisibility(View.INVISIBLE);
                 l3.setVisibility(View.INVISIBLE);
                 break;
-            case FilePresenter.TOOR_BAR_PASTE:
+            case FilePresenter.TOOL_BAR_PASTE:
                 l2.setVisibility(View.VISIBLE);
                 l1.setVisibility(View.INVISIBLE);
                 l3.setVisibility(View.INVISIBLE);

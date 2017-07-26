@@ -166,7 +166,7 @@ public class DocumentFilePresenter implements FilePresenter{
             public void onItemLongClick(View view, int position) {
                 final int index = getRealPosition(position);
                 if (index > 0) {
-                    fileView.setToolBarType(2);
+                    fileView.setToolBarType(FilePresenter.TOOL_BAR_LONG_CLICK);
                 }
             }
             @Override
@@ -199,7 +199,8 @@ public class DocumentFilePresenter implements FilePresenter{
                 doDelete(index, fileList.get(index-1));
             }
         }
-        fileView.setToolBarType(1);
+        fileView.setToolBarType(FilePresenter.TOOL_BAR_COMMON);
+        fileView.getAdapter().changeCheckBoxVisibility(DocumentFileAdapter.ViewHolder.CHECK_INVISIBILITY);
     }
 
     /**
@@ -232,17 +233,16 @@ public class DocumentFilePresenter implements FilePresenter{
 
     @Override
     public void createFolder(String name) {
-        //TODO:
         DocumentFile newFile = FileUtil.createFile(context,name,currentFolder);
         addData(newFile);
-        fileView.setToolBarType(1);
+        fileView.setToolBarType(FilePresenter.TOOL_BAR_COMMON);
     }
 
     @Override
     public void copyFileList(boolean delete) {
         pasteFlag = true;
         deleteAfterPatse = delete;
-        fileView.setToolBarType(3);
+        fileView.setToolBarType(FilePresenter.TOOL_BAR_PASTE);
     }
 
     @Override
@@ -261,11 +261,12 @@ public class DocumentFilePresenter implements FilePresenter{
                 if (deleteAfterPatse) {
                     doDelete(index, copyFile);
                 }
+                fileView.getAdapter().changeCheckBoxVisibility(DocumentFileAdapter.ViewHolder.CHECK_INVISIBILITY);
             }
         }else{
             Toast.makeText(context,"请选择你要移动的文件",Toast.LENGTH_SHORT).show();
         }
-        fileView.setToolBarType(1);
+        fileView.setToolBarType(FilePresenter.TOOL_BAR_COMMON);
     }
 
     @Override
