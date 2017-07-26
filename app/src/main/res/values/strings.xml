@@ -8,4 +8,9 @@
     <string name="cut">剪切</string>
     <string name="paste">粘贴</string>
     <string name="new_Folder">新建文件夹</string>
+    <string name="refresh">刷新</string>
+    <string name="create">新建文件夹</string>
+    <string name="cancel">取消</string>
+    <string name="inputname">请输入文件夹名称</string>
+    <string name="sure">确定</string>
 </resources>

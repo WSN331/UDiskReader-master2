@@ -24,6 +24,19 @@ public class FileUtil {
 
     private static final String TAG = FileUtil.class.getSimpleName();
 
+
+    /**
+     * 新建文件夹
+     */
+    public static DocumentFile createFile(Context context,String name,DocumentFile outfile){
+        try{
+            DocumentFile newFile = outfile.createDirectory(name);
+            return newFile;
+        }catch(Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
     /**
      * 移动文件
      * @param

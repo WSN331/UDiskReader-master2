@@ -162,7 +162,6 @@ public class DocumentFilePresenter implements FilePresenter{
                     fileView.showPasswordView();
                 }
             }
-
             @Override
             public void onItemLongClick(View view, int position) {
                 final int index = getRealPosition(position);
@@ -170,7 +169,6 @@ public class DocumentFilePresenter implements FilePresenter{
                     fileView.setToolBarType(2);
                 }
             }
-
             @Override
             public void onItemCheck(View view, int position, boolean check) {
 
@@ -233,8 +231,11 @@ public class DocumentFilePresenter implements FilePresenter{
     }
 
     @Override
-    public void createFolder() {
+    public void createFolder(String name) {
         //TODO:
+        DocumentFile newFile = FileUtil.createFile(context,name,currentFolder);
+        addData(newFile);
+        fileView.setToolBarType(1);
     }
 
     @Override

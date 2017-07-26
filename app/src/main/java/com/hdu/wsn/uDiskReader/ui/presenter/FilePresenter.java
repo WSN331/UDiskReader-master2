@@ -53,7 +53,7 @@ public interface FilePresenter {
     /**
      * 新建文件夹
      */
-    void createFolder();
+    void createFolder(String name);
 
     /**
      * 复制文件列表

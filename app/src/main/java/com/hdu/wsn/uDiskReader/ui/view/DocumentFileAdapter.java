@@ -124,8 +124,11 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
             }
             holder.tv_file.setText(name);
             holder.itemView.setTag(position);
+
             holder.setCheckBoxVisibility(checkBoxVisibility);
+
             holder.check_file.setChecked(checkMap.get(position)!=null && checkMap.get(position));
+
             holder.check_file.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -193,7 +196,7 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
         public int getCheckBoxVisibility() {
             return check_file.getVisibility();
         }
-
+        
         public boolean check() {
             boolean b = check_file.isChecked();
             b = !b;

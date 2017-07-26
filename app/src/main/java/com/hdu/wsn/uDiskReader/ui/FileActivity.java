@@ -1,6 +1,7 @@
 package com.hdu.wsn.uDiskReader.ui;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,9 +17,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -47,6 +50,8 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     private boolean alreadyLogin = false;    // SDK操作完后判断是否还处于登录的标记
     private FilePresenter filePresenter;
     private DocumentFileAdapter adapter;
+
+    private LinearLayout l1,l2,l3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +96,10 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout.setColorSchemeColors(Color.YELLOW, Color.BLUE, Color.RED, Color.GREEN);
         swipeRefreshLayout.setOnRefreshListener(this);
         tvDebug = (TextView) findViewById(R.id.tv_debug);
+        l1 = (LinearLayout) findViewById(R.id.ll_1);
+        l2 = (LinearLayout) findViewById(R.id.ll_2);
+        l3 = (LinearLayout) findViewById(R.id.ll_3);
+
 //        tvCopy = (TextView) findViewById(R.id.tv_copy);
         initClick();
     }
@@ -209,10 +218,19 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void setToolBarType(int type) {
         switch (type) {
             case FilePresenter.TOOR_BAR_COMMON:
+                l3.setVisibility(View.VISIBLE);
+                l1.setVisibility(View.INVISIBLE);
+                l2.setVisibility(View.INVISIBLE);
                 break;
             case FilePresenter.TOOR_BAR_LONG_CLICK:
+                l1.setVisibility(View.VISIBLE);
+                l2.setVisibility(View.INVISIBLE);
+                l3.setVisibility(View.INVISIBLE);
                 break;
             case FilePresenter.TOOR_BAR_PASTE:
+                l2.setVisibility(View.VISIBLE);
+                l1.setVisibility(View.INVISIBLE);
+                l3.setVisibility(View.INVISIBLE);
                 break;
         }
     }
@@ -221,11 +239,16 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
      * 初始化工具栏
      */
     private void initClickTooBar() {
-        Button copyBtn, cutBtn, pasteBtn, deleteBtn;
+        Button copyBtn, cutBtn, pasteBtn, deleteBtn,refreshBtn,createBtn,cancelBtn;
         copyBtn = (Button) findViewById(R.id.copy_btn);
         cutBtn = (Button) findViewById(R.id.cut_btn);
         pasteBtn = (Button) findViewById(R.id.paste_btn);
         deleteBtn = (Button) findViewById(R.id.delete_btn);
+
+        refreshBtn = (Button) findViewById(R.id.refresh_btn);
+        createBtn = (Button) findViewById(R.id.create_btn);
+        cancelBtn = (Button) findViewById(R.id.cancel_btn);
+
         copyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -248,6 +271,58 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
             @Override
             public void onClick(View v) {
                 filePresenter.deleteCheckFileList();
+            }
+        });
+
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filePresenter.refresh();
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                l1.setVisibility(View.VISIBLE);
+                l2.setVisibility(View.INVISIBLE);
+                l3.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        createBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final View view = View.inflate(FileActivity.this,R.layout.createfile_layout,null);
+                final Dialog dialog = new AlertDialog.Builder(FileActivity.this)
+                        .setView(view).show();
+
+                Button confirm = (Button) view.findViewById(R.id.confirm_Btn);
+                Button can = (Button) view.findViewById(R.id.can_Btn);
+                //Button cancel = (Button) view.findViewById(R.id.cancel_btn);
+
+                confirm.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        EditText etname = (EditText) view.findViewById(R.id.et_name);
+                        final String name = etname.getText().toString();
+
+                        if(!TextUtils.isEmpty(name)){
+                            filePresenter.createFolder(name);
+                            dialog.dismiss();
+                        }else{
+                            Toast.makeText(FileActivity.this,"请输入文件夹名称",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+               can.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+
             }
         });
     }
