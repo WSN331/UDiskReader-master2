@@ -1,5 +1,6 @@
 package com.hdu.wsn.uDiskReader.ui.presenter;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 
@@ -68,5 +69,10 @@ public interface FilePresenter {
      * 设置粘贴
      */
     void pasteFileList();
+
+    /**
+     * 上传到LeanCloud，实现云同步
+     */
+    void equalFileList(Context context);
 
 }

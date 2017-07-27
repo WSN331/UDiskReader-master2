@@ -10,6 +10,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.storage.StorageManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +38,10 @@ import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskConnection;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskLib;
 import com.orm.SugarContext;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 public class FileActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, FileView {
     private static String TAG = "MainActivity";
 
@@ -51,6 +56,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private LinearLayout l1,l2,l3;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +66,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         initView();
         initPermission();
     }
+
 
     /**
      * 初始化权限
@@ -253,7 +260,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
      * 初始化工具栏
      */
     private void initClickTooBar() {
-        TextView copyBtn, cutBtn, pasteBtn, deleteBtn,refreshBtn,createBtn,cancelBtn;
+        TextView copyBtn, cutBtn, pasteBtn, deleteBtn,refreshBtn,createBtn,cancelBtn,equal_btn;
         copyBtn = (TextView) findViewById(R.id.copy_btn);
         cutBtn = (TextView) findViewById(R.id.cut_btn);
         pasteBtn = (TextView) findViewById(R.id.paste_btn);
@@ -262,6 +269,15 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         refreshBtn = (TextView) findViewById(R.id.refresh_btn);
         createBtn = (TextView) findViewById(R.id.create_btn);
         cancelBtn = (TextView) findViewById(R.id.cancel_btn);
+        equal_btn = (TextView) findViewById(R.id.equal_btn);
+
+
+        equal_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filePresenter.equalFileList(getApplicationContext());
+            }
+        });
 
         copyBtn.setOnClickListener(new View.OnClickListener() {
             @Override

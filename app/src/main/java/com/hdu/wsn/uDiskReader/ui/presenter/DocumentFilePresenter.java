@@ -51,6 +51,7 @@ public class DocumentFilePresenter implements FilePresenter{
     private Uri rootUri;
     
     private boolean pasteFlag = false, deleteAfterPaste;
+
     Map<Integer, DocumentFile> copyFileMap;
 
     private static DocumentFilePresenter instance;
@@ -202,11 +203,40 @@ public class DocumentFilePresenter implements FilePresenter{
 
     @Override
     public void deleteCheckFileList() {
-        Map<Integer, Boolean> checkFileList = fileView.getAdapter().getCheckMap();
+        Map<Integer, Boolean> checkFileList = new HashMap<>();
+        checkFileList.clear();
+        checkFileList= fileView.getAdapter().getCheckMap();
         for (Integer index : checkFileList.keySet()) {
             if (checkFileList.get(index)) {
                 index = getRealPosition(index);
                 doDelete(index, fileList.get(index-1));
+            }
+        }
+        fileView.setToolBarType(FilePresenter.TOOL_BAR_COMMON);
+        fileView.getAdapter().changeCheckBoxVisibility(DocumentFileAdapter.ViewHolder.CHECK_INVISIBILITY);
+    }
+
+    @Override
+    public void equalFileList(Context context) {
+        Map<Integer,Boolean> transFileList = new HashMap<>();
+        transFileList.clear();
+        transFileList= fileView.getAdapter().getCheckMap();
+        Log.i("TTTTTT",transFileList.size()+"");
+        int count=0;
+        if(transFileList.size()<1){
+            Toast.makeText(context,"请选择要同步的文件",Toast.LENGTH_SHORT).show();
+        }else{
+            for(Integer index:transFileList.keySet()){
+                index = getRealPosition(index);
+                boolean s = FileUtil.transmitFile(fileList.get(index-1));
+                if(s){
+                    count++;
+                }
+            }
+            if(count>0){
+                Toast.makeText(context,"上传成功",Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(context,"上传失败，文件有问题",Toast.LENGTH_SHORT).show();
             }
         }
         fileView.setToolBarType(FilePresenter.TOOL_BAR_COMMON);
@@ -254,6 +284,7 @@ public class DocumentFilePresenter implements FilePresenter{
         deleteAfterPaste = delete;
         fileView.setToolBarType(FilePresenter.TOOL_BAR_PASTE);
         Map<Integer, Boolean> copyMap = fileView.getAdapter().getCheckMap();
+
         copyFileMap.clear();
         for (Integer index : copyMap.keySet()) {
             if (!copyMap.get(index)) {
@@ -287,6 +318,9 @@ public class DocumentFilePresenter implements FilePresenter{
         }
         fileView.setToolBarType(FilePresenter.TOOL_BAR_COMMON);
     }
+
+
+
 
     @Override
     public boolean isRootView() {

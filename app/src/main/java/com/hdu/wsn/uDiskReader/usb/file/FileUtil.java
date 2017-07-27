@@ -1,15 +1,21 @@
+
 package com.hdu.wsn.uDiskReader.usb.file;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVFile;
+import com.avos.avoscloud.SaveCallback;
 import com.hdu.wsn.uDiskReader.R;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +30,62 @@ public class FileUtil {
 
     private static final String TAG = FileUtil.class.getSimpleName();
 
+    /**
+     * 上传文件
+     */
+    public static boolean transmitFile(DocumentFile file){
+        int count=0;
+        if(file.isDirectory()){
+            for(DocumentFile nextfile:file.listFiles()){
+                if(nextfile.isDirectory()){
+                    transmitFile(nextfile);
+                }else{
+                    boolean a = change(nextfile);
+                    if (a){
+                        count++;
+                    }
+                }
+            }
+            if(count>0){
+                return true;
+            }
+        }else{
+           return change(file);
+        }
+        return false;
+    }
+
+    /**
+     * 文件转换
+     * @param file
+     */
+    public static boolean change(DocumentFile file){
+
+        Uri uri = file.getUri();
+        String path = uri.getPath();
+        String path1 = path.substring(0,path.lastIndexOf(":"));
+        String path11 = path1.substring(path1.lastIndexOf("/"),path1.length());
+        String path2 = path.substring(path.lastIndexOf(":")+1,path.length());
+
+        String pathlast = "/storage"+path11+"/"+path2;
+
+        Log.i("TTTT",path+"\n"+path1+"\n"+path11+"\n"+path2+"\n"+pathlast);
+
+        try {
+            AVFile newFile = AVFile.withAbsoluteLocalPath(file.getName(), pathlast);
+
+            newFile.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(AVException e) {
+                    Log.i("save","success!");
+                }
+            });
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     /**
      * 新建文件夹
