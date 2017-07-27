@@ -55,6 +55,10 @@ public class DocumentFilePresenter implements FilePresenter{
 
     private static DocumentFilePresenter instance;
 
+    public static Uri getUri() {
+        return instance!=null? instance.getRootUri() : null;
+    }
+
     public static DocumentFilePresenter newInstance(FileView fileView, Context context, Uri rootUri) {
         if (instance == null) {
             synchronized (DocumentFilePresenter.class) {
@@ -73,6 +77,10 @@ public class DocumentFilePresenter implements FilePresenter{
         fileList = new ArrayList<>();
         copyFileMap = new HashMap<>();
         registerReceiver();
+    }
+
+    public Uri getRootUri() {
+        return rootUri;
     }
 
     private void setRootUri(Uri rootUri) {

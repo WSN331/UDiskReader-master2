@@ -6,12 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.provider.DocumentFile;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +21,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +33,6 @@ import com.hdu.wsn.uDiskReader.ui.presenter.FilePresenter;
 import com.hdu.wsn.uDiskReader.ui.view.DocumentFileAdapter;
 import com.hdu.wsn.uDiskReader.ui.view.FileView;
 import com.hdu.wsn.uDiskReader.ui.view.MyItemDecoration;
-import com.hdu.wsn.uDiskReader.usb.file.FileUtil;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskConnection;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskLib;
 import com.orm.SugarContext;
@@ -45,7 +41,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     private static String TAG = "MainActivity";
 
     private Context context;
-    private TextView tvDebug, preFolder,tvCopy;
+    private TextView tvDebug, preFolder;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private UDiskLib uDiskLib;
@@ -69,8 +65,13 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
      * 初始化权限
      */
     private void initPermission() {
-        Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);//ACTION_OPEN_DOCUMENT
-        startActivityForResult(intent, 42);
+        Uri uri = DocumentFilePresenter.getUri();
+        if (uri!=null) {
+            initPresenter(uri);
+        } else {
+            Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);//ACTION_OPEN_DOCUMENT
+            startActivityForResult(intent, 42);
+        }
     }
 
     @Override
@@ -80,10 +81,18 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
             Uri rootUri;
             if (resultData != null) {
                 rootUri = resultData.getData();
-                filePresenter = DocumentFilePresenter.newInstance(this, context, rootUri);
-                onRefresh();
+                initPresenter(rootUri);
             }
         }
+    }
+
+    /**
+     * 初始化表示器
+     * @param rootUri
+     */
+    private void initPresenter(Uri rootUri) {
+        filePresenter = DocumentFilePresenter.newInstance(this, context, rootUri);
+        onRefresh();
     }
 
     /**
@@ -101,8 +110,6 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         l1 = (LinearLayout) findViewById(R.id.ll_1);
         l2 = (LinearLayout) findViewById(R.id.ll_2);
         l3 = (LinearLayout) findViewById(R.id.ll_3);
-
-//        tvCopy = (TextView) findViewById(R.id.tv_copy);
         initClick();
     }
 
