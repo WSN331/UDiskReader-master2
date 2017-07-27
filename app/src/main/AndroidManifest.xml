@@ -32,6 +32,12 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"
                 android:resource="@xml/device_filter" />
         </activity>
+
+        <meta-data android:name="DATABASE" android:value="UDiskReader-master2.db"/>
+        <meta-data android:name="VERSION" android:value="1"/>
+        <meta-data android:name="QUERY_LOG" android:value="true"/>
+        <meta-data android:name="DOMAIN_PACKAGE_NAME"  android:value="com.hdu.wsn.uDiskReader.db.bean"/>
+
     </application>
 
 </manifest>

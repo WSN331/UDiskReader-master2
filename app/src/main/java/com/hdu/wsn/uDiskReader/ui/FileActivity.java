@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.ethanco.lib.PasswordDialog;
 import com.ethanco.lib.abs.OnPositiveButtonListener;
 import com.hdu.wsn.uDiskReader.R;
+import com.hdu.wsn.uDiskReader.db.util.DBUtil;
 import com.hdu.wsn.uDiskReader.ui.presenter.DocumentFilePresenter;
 import com.hdu.wsn.uDiskReader.ui.presenter.FilePresenter;
 import com.hdu.wsn.uDiskReader.ui.view.DocumentFileAdapter;
@@ -38,6 +39,7 @@ import com.hdu.wsn.uDiskReader.ui.view.MyItemDecoration;
 import com.hdu.wsn.uDiskReader.usb.file.FileUtil;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskConnection;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskLib;
+import com.orm.SugarContext;
 
 public class FileActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, FileView {
     private static String TAG = "MainActivity";
@@ -58,7 +60,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = getApplicationContext();
-
+        SugarContext.init(this);
         initView();
         initPermission();
     }
@@ -350,7 +352,23 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
                 Toast.makeText(context, "login success", Toast.LENGTH_SHORT);
                 alreadyLogin = true;
                 filePresenter.setLoginFlag(alreadyLogin);
+                DBUtil.initWrongPassCount();
                 onRefresh();
+            }
+        }).error(new UDiskConnection.CallBack() {
+            @Override
+            public void call(int result) {
+                int wrongCount = DBUtil.getWrongPassCount();
+                wrongCount++;
+                if (wrongCount>=9) {
+                    Toast.makeText(context, "超过9次了", Toast.LENGTH_SHORT).show();
+                    DBUtil.initWrongPassCount();
+                } else {
+                    Toast.makeText(context, "已经" + wrongCount + "次了", Toast.LENGTH_SHORT).show();
+                    DBUtil.setWrongPassCount(wrongCount);
+                }
+                onRefresh();
+
             }
         }).close().doAction();
 
