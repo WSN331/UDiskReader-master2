@@ -155,6 +155,7 @@ public class DocumentFileAdapter extends RecyclerView.Adapter<DocumentFileAdapte
                 }
             });
         } else {
+            holder.setCheckBoxVisibility(ViewHolder.CHECK_INVISIBILITY);
             holder.iv_file.setImageResource(R.drawable.secret_space);
             holder.tv_file.setText("私密空间");
             holder.itemView.setTag(0);
