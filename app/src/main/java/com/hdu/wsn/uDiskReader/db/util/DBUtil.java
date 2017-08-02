@@ -36,6 +36,24 @@ public class DBUtil {
     }
 
     /**
+     * 获取缓存uri
+     * @return
+     */
+    public static String getUri() {
+        return getAppInfo().getRootUriPath();
+    }
+
+    /**
+     * 设置缓存uri
+     * @param uri
+     */
+    public static void setUri(String uri) {
+        AppInfo appInfo = getAppInfo();
+        appInfo.setRootUriPath(uri);
+        appInfo.save();
+    }
+
+    /**
      * 获取应用消息
      * @return 应用消息
      */

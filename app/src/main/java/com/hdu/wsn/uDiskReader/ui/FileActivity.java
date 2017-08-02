@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.ethanco.lib.PasswordDialog;
 import com.ethanco.lib.abs.OnPositiveButtonListener;
 import com.hdu.wsn.uDiskReader.R;
+import com.hdu.wsn.uDiskReader.db.bean.AppInfo;
 import com.hdu.wsn.uDiskReader.db.util.DBUtil;
 import com.hdu.wsn.uDiskReader.ui.presenter.DocumentFilePresenter;
 import com.hdu.wsn.uDiskReader.ui.presenter.FilePresenter;
@@ -76,8 +77,14 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (uri!=null) {
             initPresenter(uri);
         } else {
-            Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);//ACTION_OPEN_DOCUMENT
-            startActivityForResult(intent, 42);
+            String uriStr = DBUtil.getUri();
+            if (uriStr != null && !uriStr.equals("")) {
+                uri = Uri.parse(uriStr);
+                initPresenter(uri);
+            } else {
+                Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);//ACTION_OPEN_DOCUMENT
+                startActivityForResult(intent, 42);
+            }
         }
     }
 
@@ -88,6 +95,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
             Uri rootUri;
             if (resultData != null) {
                 rootUri = resultData.getData();
+                DBUtil.setUri(rootUri.toString());
                 initPresenter(rootUri);
             }
         }
