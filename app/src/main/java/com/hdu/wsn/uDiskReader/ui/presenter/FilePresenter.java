@@ -1,8 +1,6 @@
 package com.hdu.wsn.uDiskReader.ui.presenter;
 
 import android.content.Context;
-import android.view.View;
-import android.widget.TextView;
 
 /**
  * Created by ASUS on 2017/7/24 0024.
@@ -45,9 +43,14 @@ public interface FilePresenter {
     boolean isLogin();
 
     /**
+     * 注册接收器
+     */
+    void registerReceiver();
+
+    /**
      * 注销广播
      */
-    void unRegisterReceive();
+    void unRegisterReceiver();
 
     /**
      * 删除文件列表

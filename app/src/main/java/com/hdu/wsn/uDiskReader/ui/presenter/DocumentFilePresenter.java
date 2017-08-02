@@ -1,34 +1,23 @@
 package com.hdu.wsn.uDiskReader.ui.presenter;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.ColorDrawable;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.provider.DocumentFile;
-import android.test.TouchUtils;
-import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hdu.wsn.uDiskReader.R;
-import com.hdu.wsn.uDiskReader.ui.FileActivity;
 import com.hdu.wsn.uDiskReader.ui.view.DocumentFileAdapter;
 import com.hdu.wsn.uDiskReader.ui.view.FileView;
 import com.hdu.wsn.uDiskReader.usb.file.FileUtil;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskLib;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,43 +38,72 @@ public class DocumentFilePresenter implements FilePresenter{
     private List<DocumentFile> currentFolderList = new ArrayList<>();
     private DocumentFile currentFolder;  //当前目录
     private Uri rootUri;
-    
     private boolean pasteFlag = false, deleteAfterPaste;
-
     Map<Integer, DocumentFile> copyFileMap;
 
     private static DocumentFilePresenter instance;
 
+    /**
+     * 获取运行缓存uri
+     * @return
+     */
     public static Uri getUri() {
         return instance!=null? instance.getRootUri() : null;
     }
 
+    /**
+     * 初始化解释器
+     * @param fileView 页面
+     * @param context 上下文
+     * @param rootUri 根路径
+     * @return 解释器
+     */
     public static DocumentFilePresenter newInstance(FileView fileView, Context context, Uri rootUri) {
-        if (instance == null) {
-            synchronized (DocumentFilePresenter.class) {
-                instance = new DocumentFilePresenter(fileView, context, rootUri);
-            }
-        } else {
-            instance.setRootUri(rootUri);
-        }
+        DocumentFilePresenter.newInstance(fileView, context);
+        instance.setRootUri(rootUri);
         return instance;
     }
 
-    protected DocumentFilePresenter(FileView fileView, Context context, Uri rootUri) {
-        this.fileView = fileView;
-        this.context = context;
-        this.rootUri = rootUri;
+    /**
+     * 初始化解释器
+     * @param fileView 页面
+     * @param context 上下文
+     * @return 解释器
+     */
+    public static DocumentFilePresenter newInstance(FileView fileView, Context context) {
+        if (instance == null) {
+            synchronized (DocumentFilePresenter.class) {
+                instance = new DocumentFilePresenter();
+            }
+        }
+        instance.setFileView(fileView);
+        instance.setContext(context);
+        instance.registerReceiver();
+        return instance;
+    }
+
+    /**
+     * 构造函数
+     */
+    protected DocumentFilePresenter() {
         fileList = new ArrayList<>();
         copyFileMap = new HashMap<>();
-        registerReceiver();
+    }
+
+    public void setFileView(FileView fileView) {
+        this.fileView = fileView;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public void setRootUri(Uri rootUri) {
+        this.rootUri = rootUri;
     }
 
     public Uri getRootUri() {
         return rootUri;
-    }
-
-    private void setRootUri(Uri rootUri) {
-        this.rootUri = rootUri;
     }
 
     /**
@@ -103,29 +121,43 @@ public class DocumentFilePresenter implements FilePresenter{
      * 获取文件
      */
     private void getAllFiles() {
-        UDiskLib.Init(context);
-        fileList.clear();
-        DocumentFile files[] = currentFolder.listFiles();
-        if (files != null) {
-            for (DocumentFile f : files) {
-                System.out.println(f);
-                fileList.add(f);
-            }
-            Collections.sort(fileList, new Comparator<DocumentFile>() {
-                @Override
-                public int compare(DocumentFile o1, DocumentFile o2) {
-                    if (o1.isDirectory()) {
-                        return -1;
-                    } else {
-                        return 1;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                UDiskLib.Init(context);
+                fileList.clear();
+                DocumentFile files[] = currentFolder.listFiles();
+                if (files != null) {
+                    for (DocumentFile f : files) {
+                        System.out.println(f);
+                        fileList.add(f);
                     }
+                    Collections.sort(fileList, new Comparator<DocumentFile>() {
+                        @Override
+                        public int compare(DocumentFile o1, DocumentFile o2) {
+                            if (o1.isDirectory()) {
+                                return -1;
+                            } else {
+                                return 1;
+                            }
+                        }
+                    });
+                    initAdapter();
                 }
-            });
-            changeTitle();
-            DocumentFileAdapter adapter = new DocumentFileAdapter(fileList);
-            adapter.setSecretHeader(currentFolderList.size() == 0 && !loginFlag);
-            fileView.setAdapter(adapter);
-            initListener(adapter);
+            }
+        }).start();
+    }
+
+    /**
+     * 初始化界面相关的内容
+     */
+    private void initAdapter() {
+        changeTitle();
+        DocumentFileAdapter adapter = new DocumentFileAdapter(fileList);
+        adapter.setSecretHeader(currentFolderList.size() == 0 && !loginFlag);
+        fileView.setAdapter(adapter);
+        initListener(adapter);
+        if (fileList!=null && fileList.size()>0 && fileList.get(0)!=null){
             fileView.setRefreshing(false);
         }
     }
@@ -221,7 +253,6 @@ public class DocumentFilePresenter implements FilePresenter{
         Map<Integer,Boolean> transFileList = new HashMap<>();
         transFileList.clear();
         transFileList= fileView.getAdapter().getCheckMap();
-        Log.i("TTTTTT",transFileList.size()+"");
         int count=0;
         if(transFileList.size()<1){
             Toast.makeText(context,"请选择要同步的文件",Toast.LENGTH_SHORT).show();
@@ -311,7 +342,6 @@ public class DocumentFilePresenter implements FilePresenter{
                 if (deleteAfterPaste) {
                     doDelete(index, copyFile);
                 }
-                //fileView.getAdapter().changeCheckBoxVisibility(DocumentFileAdapter.ViewHolder.CHECK_INVISIBILITY);
             }
         }else{
             Toast.makeText(context,"请选择你要移动的文件",Toast.LENGTH_SHORT).show();
@@ -355,17 +385,14 @@ public class DocumentFilePresenter implements FilePresenter{
     }
 
     @Override
-    public void unRegisterReceive() {
+    public void unRegisterReceiver() {
         if (usbReceiver != null) {
             context.unregisterReceiver(usbReceiver);
-            usbReceiver = null;
         }
     }
 
-    /**
-     * 注册接收器
-     */
-    private void registerReceiver() {
+    @Override
+    public void registerReceiver() {
         //监听otg插入 拔出
         IntentFilter usbDeviceStateFilter = new IntentFilter();
         usbDeviceStateFilter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);

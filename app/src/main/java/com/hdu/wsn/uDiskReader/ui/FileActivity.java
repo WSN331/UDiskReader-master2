@@ -10,7 +10,6 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.storage.StorageManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -28,7 +27,6 @@ import android.widget.Toast;
 import com.ethanco.lib.PasswordDialog;
 import com.ethanco.lib.abs.OnPositiveButtonListener;
 import com.hdu.wsn.uDiskReader.R;
-import com.hdu.wsn.uDiskReader.db.bean.AppInfo;
 import com.hdu.wsn.uDiskReader.db.util.DBUtil;
 import com.hdu.wsn.uDiskReader.ui.presenter.DocumentFilePresenter;
 import com.hdu.wsn.uDiskReader.ui.presenter.FilePresenter;
@@ -39,9 +37,6 @@ import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskConnection;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskLib;
 import com.orm.SugarContext;
 
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class FileActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, FileView {
     private static String TAG = "MainActivity";
@@ -55,8 +50,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     private FilePresenter filePresenter;
     private DocumentFileAdapter adapter;
 
-    private LinearLayout l1,l2,l3;
-
+    private LinearLayout linearCommon, linearLongClick, linearPaste;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +61,6 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         initView();
         initPermission();
     }
-
 
     /**
      * 初始化权限
@@ -82,23 +75,42 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
                 uri = Uri.parse(uriStr);
                 initPresenter(uri);
             } else {
-                Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);//ACTION_OPEN_DOCUMENT
-                startActivityForResult(intent, 42);
+                intentToOpen();
+
             }
         }
+    }
+
+    /**
+     * 进入选择U盘的页面
+     */
+    private void intentToOpen() {
+        new AlertDialog.Builder(FileActivity.this)
+                .setTitle("获取U盘读取权限")
+                .setMessage("确定手动打开指定U盘读取权限吗？")
+                .setPositiveButton("是", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);//ACTION_OPEN_DOCUMENT
+                        startActivityForResult(intent, 42);
+                    }
+                })
+                .setNegativeButton("否", null)
+                .show();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-        if (requestCode == 42 && resultCode == Activity.RESULT_OK) {
-            Uri rootUri;
-            if (resultData != null) {
-                rootUri = resultData.getData();
-                DBUtil.setUri(rootUri.toString());
-                initPresenter(rootUri);
-            }
+        Uri rootUri;
+        if (requestCode == 42 && resultCode == Activity.RESULT_OK && resultData != null) {
+            rootUri = resultData.getData();
+            DBUtil.setUri(rootUri.toString());
+            initPresenter(rootUri);
+        } else {
+            DocumentFilePresenter.newInstance(this, context);
         }
+
     }
 
     /**
@@ -122,9 +134,9 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout.setColorSchemeColors(Color.YELLOW, Color.BLUE, Color.RED, Color.GREEN);
         swipeRefreshLayout.setOnRefreshListener(this);
         tvDebug = (TextView) findViewById(R.id.tv_debug);
-        l1 = (LinearLayout) findViewById(R.id.ll_1);
-        l2 = (LinearLayout) findViewById(R.id.ll_2);
-        l3 = (LinearLayout) findViewById(R.id.ll_3);
+        linearCommon = (LinearLayout) findViewById(R.id.ll_1);
+        linearLongClick = (LinearLayout) findViewById(R.id.ll_2);
+        linearPaste = (LinearLayout) findViewById(R.id.ll_3);
         initClick();
     }
 
@@ -158,7 +170,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        filePresenter.unRegisterReceive();
+        filePresenter.unRegisterReceiver();
         doLogout();
     }
 
@@ -178,16 +190,28 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @Override
-    public void setTitle(String preText, String nowText) {
-        preFolder.setText(preText);
-        tvDebug.setText(nowText);
+    public void setTitle(final String preText, final String nowText) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                preFolder.setText(preText);
+                tvDebug.setText(nowText);
+            }
+        });
+
     }
 
     @Override
-    public void setAdapter(DocumentFileAdapter adapter) {
-        this.adapter = adapter;
-        recyclerView.setAdapter(adapter);
-        adapter.setRecyclerView(recyclerView);
+    public void setAdapter(final DocumentFileAdapter adapter) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                FileActivity.this.adapter = adapter;
+                recyclerView.setAdapter(adapter);
+                adapter.setRecyclerView(recyclerView);
+            }
+        });
+
     }
 
     @Override
@@ -196,38 +220,22 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @Override
-    public void setRefreshing(boolean b) {
-        swipeRefreshLayout.setRefreshing(b);
-    }
-
-    @Override
-    public void showPasswordView() {
-        PasswordDialog.Builder builder = new PasswordDialog.Builder(FileActivity.this)
-                .setTitle(R.string.please_input_password)  //Dialog标题
-                .setBoxCount(4) //设置密码位数
-                .setBorderNotFocusedColor(R.color.colorSecondaryText) //边框颜色
-                .setDotNotFocusedColor(R.color.colorSecondaryText)  //密码圆点颜色
-                .setPositiveListener(new OnPositiveButtonListener() {
-                    @Override //确定
-                    public void onPositiveClick(DialogInterface dialog, int which, String text) {
-                        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-                        doLogin(text);
-                    }
-                })
-                .setNegativeListener(new DialogInterface.OnClickListener() {
-                    @Override //取消
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(context, "取消", Toast.LENGTH_SHORT).show();
-                    }
-                });
-        builder.create().show();
+    public void setRefreshing(final boolean b) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(b);
+            }
+        });
     }
 
     @Override
     public void onUDiskInsert(Intent intent) {
         //进行读写操作
         Log.e(TAG, "U盘插入");
-        filePresenter.setLoginFlag(alreadyLogin);
+        if (filePresenter != null) {
+            filePresenter.setLoginFlag(alreadyLogin);
+        }
         alreadyLogin = false;
         initPermission();
     }
@@ -247,19 +255,19 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void setToolBarType(int type) {
         switch (type) {
             case FilePresenter.TOOL_BAR_COMMON:
-                l3.setVisibility(View.VISIBLE);
-                l1.setVisibility(View.INVISIBLE);
-                l2.setVisibility(View.INVISIBLE);
+                linearPaste.setVisibility(View.VISIBLE);
+                linearCommon.setVisibility(View.INVISIBLE);
+                linearLongClick.setVisibility(View.INVISIBLE);
                 break;
             case FilePresenter.TOOL_BAR_LONG_CLICK:
-                l1.setVisibility(View.VISIBLE);
-                l2.setVisibility(View.INVISIBLE);
-                l3.setVisibility(View.INVISIBLE);
+                linearCommon.setVisibility(View.VISIBLE);
+                linearLongClick.setVisibility(View.INVISIBLE);
+                linearPaste.setVisibility(View.INVISIBLE);
                 break;
             case FilePresenter.TOOL_BAR_PASTE:
-                l2.setVisibility(View.VISIBLE);
-                l1.setVisibility(View.INVISIBLE);
-                l3.setVisibility(View.INVISIBLE);
+                linearLongClick.setVisibility(View.VISIBLE);
+                linearCommon.setVisibility(View.INVISIBLE);
+                linearPaste.setVisibility(View.INVISIBLE);
                 break;
         }
     }
@@ -268,17 +276,16 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
      * 初始化工具栏
      */
     private void initClickTooBar() {
-        TextView copyBtn, cutBtn, pasteBtn, deleteBtn,refreshBtn,createBtn,cancelBtn,equal_btn;
+        TextView copyBtn, cutBtn, pasteBtn, deleteBtn,
+                refreshBtn, createBtn, cancelBtn, equal_btn;
         copyBtn = (TextView) findViewById(R.id.copy_btn);
         cutBtn = (TextView) findViewById(R.id.cut_btn);
         pasteBtn = (TextView) findViewById(R.id.paste_btn);
         deleteBtn = (TextView) findViewById(R.id.delete_btn);
-
         refreshBtn = (TextView) findViewById(R.id.refresh_btn);
         createBtn = (TextView) findViewById(R.id.create_btn);
         cancelBtn = (TextView) findViewById(R.id.cancel_btn);
         equal_btn = (TextView) findViewById(R.id.equal_btn);
-
 
         equal_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -286,7 +293,6 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
                 filePresenter.equalFileList(getApplicationContext());
             }
         });
-
         copyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -311,63 +317,63 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
                 filePresenter.deleteCheckFileList();
             }
         });
-
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filePresenter.refresh();
+                onRefresh();
             }
         });
-
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                l3.setVisibility(View.VISIBLE);
-                l1.setVisibility(View.INVISIBLE);
-                l2.setVisibility(View.INVISIBLE);
+                linearPaste.setVisibility(View.VISIBLE);
+                linearCommon.setVisibility(View.INVISIBLE);
+                linearLongClick.setVisibility(View.INVISIBLE);
             }
         });
-
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final View view = View.inflate(FileActivity.this,R.layout.createfile_layout,null);
-                final Dialog dialog = new AlertDialog.Builder(FileActivity.this)
-                        .setView(view).show();
+                createNewFolder();
+            }
+        });
+    }
 
-                Button confirm = (Button) view.findViewById(R.id.confirm_Btn);
-                Button can = (Button) view.findViewById(R.id.can_Btn);
-                //Button cancel = (Button) view.findViewById(R.id.cancel_btn);
+    /**
+     * 新建文件夹
+     */
+    private void createNewFolder() {
+        final View view = View.inflate(FileActivity.this,R.layout.createfile_layout,null);
+        final Dialog dialog = new AlertDialog.Builder(FileActivity.this)
+                .setView(view).show();
 
-                confirm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        EditText etname = (EditText) view.findViewById(R.id.et_name);
-                        final String name = etname.getText().toString();
+        Button confirm = (Button) view.findViewById(R.id.confirm_Btn);
+        Button can = (Button) view.findViewById(R.id.can_Btn);
 
-                        if(!TextUtils.isEmpty(name)){
-                            filePresenter.createFolder(name);
-                            dialog.dismiss();
-                        }else{
-                            Toast.makeText(FileActivity.this,"请输入文件夹名称",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditText etName = (EditText) view.findViewById(R.id.et_name);
+                final String name = etName.getText().toString();
 
-               can.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                    }
-                });
-
+                if(!TextUtils.isEmpty(name)){
+                    filePresenter.createFolder(name);
+                    dialog.dismiss();
+                }else{
+                    Toast.makeText(FileActivity.this,"请输入文件夹名称",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        can.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
             }
         });
     }
 
     /**
      * 执行登录
-     *
      * @param text 密码
      */
     private void doLogin(final String text) {
@@ -403,6 +409,29 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         }).close().doAction();
 
+    }
+
+    @Override
+    public void showPasswordView() {
+        PasswordDialog.Builder builder = new PasswordDialog.Builder(FileActivity.this)
+                .setTitle(R.string.please_input_password)  //Dialog标题
+                .setBoxCount(4) //设置密码位数
+                .setBorderNotFocusedColor(R.color.colorSecondaryText) //边框颜色
+                .setDotNotFocusedColor(R.color.colorSecondaryText)  //密码圆点颜色
+                .setPositiveListener(new OnPositiveButtonListener() {
+                    @Override //确定
+                    public void onPositiveClick(DialogInterface dialog, int which, String text) {
+                        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                        doLogin(text);
+                    }
+                })
+                .setNegativeListener(new DialogInterface.OnClickListener() {
+                    @Override //取消
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(context, "取消", Toast.LENGTH_SHORT).show();
+                    }
+                });
+        builder.create().show();
     }
 
     /**
