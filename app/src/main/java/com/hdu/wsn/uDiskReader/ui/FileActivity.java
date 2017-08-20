@@ -519,6 +519,9 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
                 wrongCount++;
                 if (wrongCount>=9) {
                     Toast.makeText(context, "超过9次了", Toast.LENGTH_SHORT).show();
+
+                    destroyAllData();
+
                     DBUtil.initWrongPassCount();
                 } else {
                     Toast.makeText(context, "已经" + wrongCount + "次了", Toast.LENGTH_SHORT).show();
@@ -575,6 +578,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
      * 私密空间执行退出的方法
      */
     private void doLogout() {
+
         uDiskLib = UDiskLib.create(context);
         UDiskConnection.create(uDiskLib, new UDiskConnection.Action() {
             @Override
@@ -589,6 +593,26 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
                 onRefresh();
             }
         }).close().doAction();
+    }
+
+    /**
+     *  私密空间执行销毁数据的方法
+     */
+    private void destroyAllData(){
+        uDiskLib = UDiskLib.create(context);
+        UDiskConnection.create(uDiskLib,new UDiskConnection.Action(){
+            @Override
+            public int action(UDiskLib diskLib) {
+                return uDiskLib.smiEraseAllData();
+            }
+        }).success(new UDiskConnection.CallBack() {
+            @Override
+            public void call(int result) {
+                Toast.makeText(context,"deleteAllData success",Toast.LENGTH_SHORT);
+                onRefresh();
+            }
+        }).close().doAction();
+
     }
 
 }

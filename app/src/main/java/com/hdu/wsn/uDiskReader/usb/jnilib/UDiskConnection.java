@@ -71,6 +71,7 @@ public class UDiskConnection {
      */
     public void doAction() {
         int result = action.action(diskLib);
+
         if (result == SmiErrDef.S_OK) {
             if (success != null) {
                 success.call(result);
