@@ -43,6 +43,7 @@ App界面效果
 ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/five.png?raw=true)
 ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/six.png?raw=true)
 ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/eight.png?raw=true)
+![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/four.png?raw=true)
 
     提示：若要退出，点击左上角的相应文件名，则可返回到相应文件当前目录。
 
@@ -69,8 +70,8 @@ App界面效果
 
 * 文件的云同步功能，点击云同步之后，则将当前目录下的所有文件完成上传。
 
-![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/upload.png?raw=true)
+    ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/upload.png?raw=true)
 
 * 连续登录失败九次后销毁u盘
 
-![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/unlock.png?raw=true)
+    ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/unlock.png?raw=true)
