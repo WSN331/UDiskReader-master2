@@ -42,6 +42,7 @@ App界面效果
 
 ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/five.png?raw=true)
 ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/six.png?raw=true)
+
 ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/eight.png?raw=true)
 ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/four.png?raw=true)
 
@@ -65,13 +66,12 @@ App界面效果
     ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/twelve.png?raw=true)
     ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/fourteen.png?raw=true)
     ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/fiveteen.png?raw=true)
-
     提示：文件的刷新，复制，删除功能操作类似，可参照文件的剪切操作。
 
 * 文件的云同步功能，点击云同步之后，则将当前目录下的所有文件完成上传。
 
-    ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/upload.png?raw=true)
+![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/upload.jpg?raw=true)
 
 * 连续登录失败九次后销毁u盘
 
-    ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/unlock.png?raw=true)
+![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/unlock.jpg?raw=true)
