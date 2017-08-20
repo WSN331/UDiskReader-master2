@@ -120,9 +120,19 @@ public class UDiskLib {
         // Enumerating devices
         while (deviceIterator.hasNext()) {
             mUsbDevice = deviceIterator.next();
+
+            if(instance.mUsbDevice.getVendorId() != 0x090c){
+                Log.i("TTT","No Smi Device \n");
+                continue;
+            }else{
+                Log.i("TTT","Smi Device OK \n");
+            }
+
             mPermissionIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(ACTION_USB_PERMISSION), 0);
 
             mUsbManager.requestPermission(mUsbDevice, mPermissionIntent);
+
+            break;
         }
 
         return SmiErrDef.S_OK;

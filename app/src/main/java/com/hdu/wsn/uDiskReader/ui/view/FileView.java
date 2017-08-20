@@ -55,4 +55,5 @@ public interface FileView {
      * @param type 工具栏类型
      */
     void setToolBarType(int type);
+
 }

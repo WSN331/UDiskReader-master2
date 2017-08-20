@@ -56,8 +56,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        >
+        android:layout_alignParentBottom="true">
 
 
         <TextView
@@ -67,7 +66,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/delete"
-            android:drawableTop="@drawable/remove"/>
+            android:drawableTop="@drawable/remove_select"/>
 
         <TextView
             android:id="@+id/cut_btn"
@@ -76,7 +75,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/cut"
-            android:drawableTop="@drawable/cut"/>
+            android:drawableTop="@drawable/cut_select"/>
         <TextView
             android:id="@+id/copy_btn"
             android:layout_width="wrap_content"
@@ -84,16 +83,9 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/copy"
-            android:drawableTop="@drawable/copy"/>
+            android:drawableTop="@drawable/copy_select"/>
 
-        <TextView
-            android:id="@+id/equal_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/equal"
-            android:drawableTop="@drawable/cloud"/>
+
 
     </LinearLayout>
 
@@ -114,7 +106,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/cancel"
-            android:drawableTop="@drawable/cancel"/>
+            android:drawableTop="@drawable/cancel_select"/>
 
         <TextView
             android:id="@+id/paste_btn"
@@ -123,13 +115,13 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/paste"
-            android:drawableTop="@drawable/paste"/>
+            android:drawableTop="@drawable/paste_select"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_3"
-        android:visibility="visible"
+        android:visibility="invisible"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -144,7 +136,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/create"
-            android:drawableTop="@drawable/create"/>
+            android:drawableTop="@drawable/create_select"/>
 
         <TextView
             android:id="@+id/refresh_btn"
@@ -153,22 +145,40 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/refresh"
-            android:drawableTop="@drawable/refresh"/>
+            android:drawableTop="@drawable/refresh_select"/>
 
-<!--        <TextView
+        <TextView
             android:id="@+id/equal_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/equal"
-            android:drawableTop="@drawable/cloud"/>-->
-
-<!--        <Button
-            android:id="@+id/refresh_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/refresh"/>-->
+            android:drawableTop="@drawable/cloud_select"/>
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_show"
+        android:visibility="invisible"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/pb_show"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tv_show"
+            android:padding="5dp"
+            android:text="正在上传..."
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
 
 </RelativeLayout>

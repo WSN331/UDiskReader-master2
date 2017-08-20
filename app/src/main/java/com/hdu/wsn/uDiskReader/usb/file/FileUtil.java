@@ -10,8 +10,10 @@ import android.util.Log;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVFile;
+import com.avos.avoscloud.ProgressCallback;
 import com.avos.avoscloud.SaveCallback;
 import com.hdu.wsn.uDiskReader.R;
+import com.hdu.wsn.uDiskReader.ui.view.FileView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,21 +65,22 @@ public class FileUtil {
 
         Uri uri = file.getUri();
         String path = uri.getPath();
+        Log.i("TTT",path+"");
         String path1 = path.substring(0,path.lastIndexOf(":"));
         String path11 = path1.substring(path1.lastIndexOf("/"),path1.length());
         String path2 = path.substring(path.lastIndexOf(":")+1,path.length());
 
-        String pathlast = "/storage"+path11+"/"+path2;
+        String pathLast = "/storage"+path11+"/"+path2;
 
-        Log.i("TTTT",path+"\n"+path1+"\n"+path11+"\n"+path2+"\n"+pathlast);
+        Log.i("TTTT",path+"\n"+path1+"\n"+path11+"\n"+path2+"\n"+pathLast);
 
         try {
-            AVFile newFile = AVFile.withAbsoluteLocalPath(file.getName(), pathlast);
+            AVFile newFile = AVFile.withAbsoluteLocalPath(file.getName(), pathLast);
 
             newFile.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(AVException e) {
-                    Log.i("save","success!");
+                    Log.i("save", "success!");
                 }
             });
             return true;
@@ -181,8 +184,24 @@ public class FileUtil {
         intent.setAction(Intent.ACTION_VIEW);
         //获取文件file的MIME类型
         String type = getMIMEType(file);
+
+
+        //获得绝对路径
+        Uri uri = file.getUri();
+        String path = uri.getPath();
+        Log.i("TTT",path+"");
+        String path1 = path.substring(0,path.lastIndexOf(":"));
+        String path11 = path1.substring(path1.lastIndexOf("/"),path1.length());
+        String path2 = path.substring(path.lastIndexOf(":")+1,path.length());
+        String pathLast = "/storage"+path11+"/"+path2;
+
+        File openfile = new File(pathLast);
         //设置intent的data和Type属性。
-        intent.setDataAndType(file.getUri(), type);
+        //intent.setDataAndType(file.getUri(), type);
+        intent.setDataAndType(Uri.fromFile(openfile),type);
+
+
+        Log.i("TTTT",file.getUri()+"\n"+file.getUri().getPath()+"\n"+Uri.fromFile(openfile));
         //跳转
         context.startActivity(intent);
     }

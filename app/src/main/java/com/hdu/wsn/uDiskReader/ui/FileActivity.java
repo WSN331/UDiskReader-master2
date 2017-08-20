@@ -10,6 +10,8 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -17,10 +19,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,27 +44,55 @@ import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskConnection;
 import com.hdu.wsn.uDiskReader.usb.jnilib.UDiskLib;
 import com.orm.SugarContext;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
 
 public class FileActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, FileView {
+
+    public static final int BEFOREPB = 100;
+    public static final int AFTERPB = 101;
+
     private static String TAG = "MainActivity";
 
+
+    private int index= 0;
     private Context context;
+    private ProgressBar pbShow;
+    private LinearLayout llShow;
+
     private TextView tvDebug, preFolder;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private UDiskLib uDiskLib;
     private boolean alreadyLogin = false;    // SDK操作完后判断是否还处于登录的标记
+
     private FilePresenter filePresenter;
+
     private DocumentFileAdapter adapter;
 
     private LinearLayout linearCommon, linearLongClick, linearPaste;
+
+    private AlertDialog dialog;
+
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            llShow.setVisibility(View.INVISIBLE);
+            dialog.dismiss();
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         context = getApplicationContext();
         SugarContext.init(this);
+
         initView();
         initPermission();
     }
@@ -126,6 +161,9 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
      * 初始化界面
      */
     private void initView() {
+        pbShow = (ProgressBar) findViewById(R.id.pb_show);
+
+        llShow = (LinearLayout) findViewById(R.id.ll_show);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         preFolder = (TextView) findViewById(R.id.pre_folder);
@@ -160,6 +198,9 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onRefresh() {
         tvDebug.setText("");
         swipeRefreshLayout.setRefreshing(true);
+        linearPaste.setVisibility(View.VISIBLE);
+        linearCommon.setVisibility(View.INVISIBLE);
+        linearLongClick.setVisibility(View.INVISIBLE);
         if (filePresenter == null) {
             initPermission();
         } else {
@@ -191,6 +232,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void setTitle(final String preText, final String nowText) {
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -258,6 +300,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
                 linearPaste.setVisibility(View.VISIBLE);
                 linearCommon.setVisibility(View.INVISIBLE);
                 linearLongClick.setVisibility(View.INVISIBLE);
+
                 break;
             case FilePresenter.TOOL_BAR_LONG_CLICK:
                 linearCommon.setVisibility(View.VISIBLE);
@@ -290,19 +333,47 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         equal_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filePresenter.equalFileList(getApplicationContext());
+                progressSet();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pbShow.setProgress(0);
+                        filePresenter.equalFileList(getApplicationContext());
+                        pbShow.setMax(100);
+                        for(int i=1;i<=100;i++)
+                        {
+                            pbShow.setProgress(i);
+                            try {
+                                Thread.sleep(10+ new Random().nextInt(20));
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        mHandler.sendEmptyMessage(0);
+                    }
+                }).start();
             }
         });
         copyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filePresenter.copyFileList(false);
+                if(setTextSelect()){
+                    filePresenter.copyFileList(false);
+                }else{
+                    Toast.makeText(getApplicationContext(),"请选择你要复制的文件",Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
         cutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filePresenter.copyFileList(true);
+
+                if(setTextSelect()){
+                    filePresenter.copyFileList(true);
+                }else{
+                    Toast.makeText(getApplicationContext(),"请选择你要剪切的文件",Toast.LENGTH_SHORT).show();
+                }
             }
         });
         pasteBtn.setOnClickListener(new View.OnClickListener() {
@@ -314,7 +385,12 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                filePresenter.deleteCheckFileList();
+                if(setTextSelect()){
+                    filePresenter.deleteCheckFileList();
+                }else{
+                    Toast.makeText(getApplicationContext(),"请选择你要删除的文件",Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
         refreshBtn.setOnClickListener(new View.OnClickListener() {
@@ -340,7 +416,51 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     /**
-     * 新建文件夹
+     * 上传时效果设置
+     */
+    public void progressSet(){
+        View view = View.inflate(getApplicationContext(),R.layout.view,null);
+        dialog = new AlertDialog.Builder(this, R.style.TransparentWindowBg)
+                .setView(view)
+                .create();
+
+        Window window = dialog.getWindow();
+        WindowManager.LayoutParams params = window.getAttributes();
+        params.gravity = Gravity.BOTTOM;
+        params.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        params.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(params);
+        window.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ERROR);
+
+        dialog.setCancelable(false);
+        dialog.show();
+
+        llShow.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * 当没有选中项时，三个功能键不能点击
+     */
+    private boolean setTextSelect() {
+        Map<Integer,Boolean> checkmap = new HashMap<>();
+        checkmap.clear();
+        checkmap = adapter.getCheckMap();
+        int count = 0;
+        for(Integer position:checkmap.keySet()){
+            if(checkmap.get(position)){
+                count++;
+            }
+        }
+        if(count==0){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+
+    /**
+     * 创建新建文件夹
      */
     private void createNewFolder() {
         final View view = View.inflate(FileActivity.this,R.layout.createfile_layout,null);
@@ -435,7 +555,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     /**
-     * 退出登录的弹框
+     * 私密空间退出登录的弹框
      */
     private void logout() {
         new AlertDialog.Builder(FileActivity.this)
@@ -452,7 +572,7 @@ public class FileActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     /**
-     * 执行登出
+     * 私密空间执行退出的方法
      */
     private void doLogout() {
         uDiskLib = UDiskLib.create(context);

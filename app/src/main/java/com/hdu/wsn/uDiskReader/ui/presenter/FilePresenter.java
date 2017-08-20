@@ -78,4 +78,6 @@ public interface FilePresenter {
      */
     void equalFileList(Context context);
 
+
+
 }

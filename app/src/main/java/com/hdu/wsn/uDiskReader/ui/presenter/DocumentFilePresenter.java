@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.provider.DocumentFile;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -42,6 +43,7 @@ public class DocumentFilePresenter implements FilePresenter{
     Map<Integer, DocumentFile> copyFileMap;
 
     private static DocumentFilePresenter instance;
+
 
     /**
      * 获取运行缓存uri
@@ -112,8 +114,11 @@ public class DocumentFilePresenter implements FilePresenter{
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void readDeviceList() {
+        //使用该方法添加操作文件权限
         context.getContentResolver().takePersistableUriPermission(rootUri,Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        //由该Uri获取路径,取得文件目录
         currentFolder = DocumentFile.fromTreeUri(context, rootUri);
+        Log.i("TTTTT",currentFolder+"");
         getAllFiles();
     }
 
@@ -250,25 +255,25 @@ public class DocumentFilePresenter implements FilePresenter{
 
     @Override
     public void equalFileList(Context context) {
-        Map<Integer,Boolean> transFileList = new HashMap<>();
-        transFileList.clear();
-        transFileList= fileView.getAdapter().getCheckMap();
+
         int count=0;
-        if(transFileList.size()<1){
-            Toast.makeText(context,"请选择要同步的文件",Toast.LENGTH_SHORT).show();
+        int num = 0;
+        if(currentFolderList.size() == 0){
+            num = fileList.size()-1;
+        }else {
+            num = fileList.size();
+        }
+
+        for(int index=0;index<num;index++){
+            boolean s = FileUtil.transmitFile(fileList.get(index));
+            if(s){
+                count++;
+            }
+        }
+        if(count>0){
+            Toast.makeText(context,"上传成功",Toast.LENGTH_SHORT).show();
         }else{
-            for(Integer index:transFileList.keySet()){
-                index = getRealPosition(index);
-                boolean s = FileUtil.transmitFile(fileList.get(index-1));
-                if(s){
-                    count++;
-                }
-            }
-            if(count>0){
-                Toast.makeText(context,"上传成功",Toast.LENGTH_SHORT).show();
-            }else{
-                Toast.makeText(context,"上传失败，文件有问题",Toast.LENGTH_SHORT).show();
-            }
+            Toast.makeText(context,"上传失败，文件有问题",Toast.LENGTH_SHORT).show();
         }
         fileView.setToolBarType(FilePresenter.TOOL_BAR_COMMON);
         fileView.getAdapter().changeCheckBoxVisibility(DocumentFileAdapter.ViewHolder.CHECK_INVISIBILITY);
