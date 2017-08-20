@@ -2,8 +2,8 @@ OTG 加密U盘
 ================================================
 App界面效果
 
-![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/four.png?raw=true)
-![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/eleven.png?raw=true)
+
+
 功能特性
 ------------------------------------------------
 * 支持U盘私密盘加密（密码输入错误超过9次，销毁U盘）
