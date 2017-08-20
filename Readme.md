@@ -2,7 +2,7 @@ OTG 加密U盘
 ================================================
 App界面效果
 
-![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/four.png?raw=true)&nbsp&nbsp&nbsp
+![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/four.png?raw=true)         
 ![image](https://github.com/WSN331/UDiskReader-master2/blob/master/image/eleven.png?raw=true)
 
 功能特性
